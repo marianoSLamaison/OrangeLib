@@ -3,6 +3,12 @@ SRC := src
 
 
 
-compile :
-	gcc -c $(SRC)/sllist/sllist.c	
+compile : sllist.o testsllist.o
+	gcc sllist.o testsllist.o -o sllisttest.exe	
+
+testsllist.o : $(SRC)/sllist/testsllist.c
+	gcc -c $<
+
+sllist.o : $(SRC)/sllist/sllist.c
+	gcc -c $<
 
