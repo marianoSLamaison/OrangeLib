@@ -12,7 +12,7 @@ typedef struct SIMPLE_LINKED_LIST{
 	struct NODE* tail;
 }sllist;
 
-sllist* create_sllist()
+sllist* sllist_create()
 {
 	sllist* ret = malloc(sizeof(sllist));
 	ret->length = 0;
@@ -25,7 +25,29 @@ int  sllist_get_length(sllist* list)
 {
 	return list->length;
 }
+struct NODE* get_at(sllist* list, int index)
+{
+	struct NODE* iter = list->head;
+	int i=0;
+	while (iter!= NULL)
+	{
+		if(i==index)
+		{
+			return iter;
+		}
+		iter = iter->next;
+		i++;
+	}
+	return NULL;
+}
 
+void* sllist_get_elem(sllist* list, int index)
+{
+	struct NODE* nodo = get_at(list, index);	
+	if (nodo == NULL)
+		return NULL;
+	return nodo->val;
+}
 void sllist_append(sllist* list, void* elem)
 {
 	struct NODE* newtail = malloc(sizeof(struct NODE));
@@ -66,31 +88,6 @@ void sllist_add_at(sllist* list,void* elem, int index)
 	newLink->next = NULL;
 	list->length++;
 }
-struct NODE* get_at(sllist* list, int index)
-{
-	struct NODE* iter = list->head;
-	int i=0;
-	while (iter!= NULL)
-	{
-		if(i==index)
-		{
-			return iter;
-		}
-		iter = iter->next;
-		i++;
-	}
-	return NULL;
-}
-void* sllist_get_at(sllist* list, int index)
-{
-	struct NODE* nodo = get_at(list, index);	
-	if (nodo == NULL)
-		return NULL;
-	return nodo->val;
-}
-
-
-
 void sllist_eliminate(sllist* list, int index)
 {
 	sllist_eliminate_custom(list, index, free);
@@ -135,8 +132,7 @@ void*sllist_remove(sllist* list, int index)
 	free(nodo);
 	return ret;
 }
-
-int  sllist_get_index_of(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
+int  sllist_get_first_instance_index(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
 {
 	struct NODE* passer = list->head;
 	int i=0;
@@ -151,7 +147,7 @@ int  sllist_get_index_of(sllist* list, void* elem, int (*cmp)(void* e1, void* e2
 	}
 	return -1;
 }
-void* sllist_get_elem(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
+void* sllist_get_first_instance_of(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
 {
 	struct NODE* passer = list->head;
 	int i=0;
@@ -176,7 +172,7 @@ sllist* split_in_twos(sllist* list)
 	struct NODE* passer = list->head;
 	struct NODE* holder;
 	struct NODE* newEntry;
-	sllist* ret = create_sllist();
+	sllist* ret = sllist_create();
 	int i=0;
 	while (passer != NULL) 
 	{
@@ -266,7 +262,7 @@ void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 	list->head = partitionedlist->head->val;
 	list->tail = get_at(partitionedlist, partitionedlist->length-1);
 }
-int  sllist_ordered_add(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
+int  sllist_add_in_order(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
 {
 	struct NODE** iter = &list->head;
 	struct NODE* newIndex = malloc(sizeof(struct NODE));
@@ -281,9 +277,10 @@ int  sllist_ordered_add(sllist* list, void* elem, int (*cmp)(void* e1, void* e2)
 			*iter = newIndex;
 			newIndex->next = helper;
 			return i;
-		}
+		
 		i++;
 		iter = &((*iter)->next);
+		}
 	}
 }
 void sllist_destroy(sllist* list)

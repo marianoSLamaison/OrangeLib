@@ -8,7 +8,7 @@ typedef struct SIMPLE_LINKED_LIST sllist;
 /*
  * Returns a list of size 0 with 0 elements
  * */
-sllist* create_sllist();
+sllist* sllist_create();
 /*
  * Returns the length of a given list
  * */
@@ -16,7 +16,7 @@ int   sllist_get_length(sllist* list);
 /*
  * Returns the item in the given position, or NULL if the item couldn't be found
  * */
-void* sllist_get(sllist* list, int index);
+void* sllist_get_elem(sllist* list, int index);
 /*
  * Adds an item to the very end of the list
  * */
@@ -48,13 +48,13 @@ void*sllist_remove(sllist* list, int index);
  * cmp must retorn >0 if e1>e2, 0 if e1==e2 and <0 if e1<e2 the number itself does not matter
  * just it's sign
  * */
-int  sllist_get_index_of(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
+int  sllist_get_first_instance_index(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
 /*
  * Finds the element given inside the list and returns it
  * cmp must retorn >0 if e1>e2, 0 if e1==e2 and <0 if e1<e2 the number itself does not matter
  * just it's sign
  * */
-void*sllist_get_elem(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
+void*sllist_get_first_instance_of(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
 /*
  * Uses the algorithm Merge Sort to sort a list of elements following the criteria given by
  * cmp
@@ -69,7 +69,7 @@ void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2));
  * cmp must retorn >0 if e1>e2, 0 if e1==e2 and <0 if e1<e2 the number itself does not matter
  * just it's sign
  * */
-int  sllist_ordered_add(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
+int  sllist_add_in_order(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
 /*
  * Destroys the list, freeing all it's memory, asuming the elements inside do not
  * point towards other elements in memory
