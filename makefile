@@ -7,8 +7,8 @@ compile : sllist.o testsllist.o
 	gcc sllist.o testsllist.o -o sllisttest.exe	
 
 testsllist.o : $(SRC)/sllist/testsllist.c
-	gcc -c $<
+	gcc -c $(FLAGS) $<
 
 sllist.o : $(SRC)/sllist/sllist.c
-	gcc -c $<
+	gcc -c $(FLAGS) $<
 

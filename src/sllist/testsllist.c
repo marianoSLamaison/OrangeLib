@@ -7,20 +7,29 @@ char* printNumberList(sllist* list)
 {
 	int length = sllist_get_length(list);
 	int i, handler;
-	int numOfComas = length / 2; 
+	int numOfComas = length - 1; 
 	const int digitsPerNum = 3;
 	int totalRetLength = sizeof(char)*digitsPerNum+numOfComas;
-	char* ret = malloc(totalRetLength + 1);//uno mas por el '\0'
-	char* stringedNumber = malloc(digitsPerNum);
+	
+	char* ret = malloc(totalRetLength + 1);//uno mas por el '0'
+	char* stringedNumber = malloc(digitsPerNum*sizeof(char));
+	
 	ret[totalRetLength] = '\0';
+	handler = *(int*)sllist_get_elem(list, 3);	
 	for (i=0; i<length; i++)
 	{
+		
 		handler = *(int*)sllist_get_elem(list, i);
+		
+		
 		sprintf(stringedNumber, "%d", handler);
+		
 		if (i>0)
 			strcat(ret, ",");
 		strcat(ret, stringedNumber);
+		
 	}
+	return ret;
 }
 
 void TestLoadList(sllist* list)
@@ -39,10 +48,14 @@ void TestLoadList(sllist* list)
 int main(void)
 {
 	sllist* lista = sllist_create();
-	char val;
+	int val;
 	TestLoadList(lista);
+	//sllist_get_elem(lista, 0);
+	
+	
+	val = *(int*)sllist_get_elem(lista, 3);
+	printf("El valor almacenado es %d", val);
 
-	printf("Hola");
 	scanf("%d", &val);
 	return 0;
 }

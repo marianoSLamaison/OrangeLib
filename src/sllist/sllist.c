@@ -66,27 +66,27 @@ void sllist_append(sllist* list, void* elem)
 }
 void sllist_add_at(sllist* list,void* elem, int index)
 {
-	struct NODE* passer = list->head;
-	struct NODE* newLink = malloc(sizeof(struct NODE));
+	struct NODE** passer = &list->head;
+	struct NODE*  newLink = malloc(sizeof(struct NODE));
 	int i = 0;
 	newLink->val = elem;
-	while(passer != NULL) 
+	newLink->next = NULL;
+	while(*passer != NULL) 
 	{
 		if (i==index)
-		{
-			newLink->next = passer->next;
-			passer->next = newLink;
+		{	
+			newLink->next = *passer;
+			*passer = newLink;
 			list->length++;
 			return;
 		}
-		passer = passer->next;
+		passer = &(*passer)->next;
 		i++;
 	}
-	if (list->head == NULL)
-		list->head = newLink;
+	//llegamos al final de la lista
+	*passer = newLink;
 	list->tail = newLink;
-	newLink->next = NULL;
-	list->length++;
+	return;
 }
 void sllist_eliminate(sllist* list, int index)
 {
@@ -264,7 +264,7 @@ void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 }
 int  sllist_add_in_order(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
 {
-	struct NODE** iter = &list->head;
+	struct NODE** iter = &(list->head);
 	struct NODE* newIndex = malloc(sizeof(struct NODE));
 	struct NODE* helper;
 	int i=0;
@@ -282,6 +282,8 @@ int  sllist_add_in_order(sllist* list, void* elem, int (*cmp)(void* e1, void* e2
 		iter = &((*iter)->next);
 		}
 	}
+	*iter = newIndex;
+	return i;
 }
 void sllist_destroy(sllist* list)
 {
@@ -289,7 +291,7 @@ void sllist_destroy(sllist* list)
 }
 void sllist_destroy_custom(sllist* list, void (*destroyer)(void* elem))
 {
-	struct NODE* iter;
+	struct NODE* iter = list->head;
 	struct NODE* helper;
 	while (iter != NULL)
 	{
