@@ -1,6 +1,6 @@
 #include "sllist.h"
 #include <stdlib.h>
-
+#include <string.h>
 struct NODE {
 	void * val;
 	struct NODE * next;
@@ -86,6 +86,7 @@ void sllist_add_at(sllist* list,void* elem, int index)
 	//llegamos al final de la lista
 	*passer = newLink;
 	list->tail = newLink;
+	list->length++;
 	return;
 }
 void sllist_eliminate(sllist* list, int index)
@@ -303,4 +304,35 @@ void sllist_destroy_custom(sllist* list, void (*destroyer)(void* elem))
 	free(list);
 }
 
+char* sllist_to_string(sllist* list, char* (*stringifier)(void*))
+{
+	int list_length = sllist_get_length(list), i, num_of_separators, total_string_size;
+	const int num_de_llaves = 2;
+
+	char**temp_list_of_strings = (char**)calloc(list_length, sizeof(char*));
+	char* new_temp_entry;
+	char* ret;
+	num_of_separators = (list_length - 1);
+	total_string_size = 0;
+	
+	for (i=0; i<list_length; i++)
+	{
+		new_temp_entry = stringifier(sllist_get_elem(list, i));
+		temp_list_of_strings[i] = new_temp_entry;
+		total_string_size += strlen(new_temp_entry);//sumamos el tamaño de todos los strings
+	}
+	//+1 por el character '\0' para que sea un string propiamente
+	total_string_size += num_of_separators + num_de_llaves;
+	ret = calloc(total_string_size + 1, sizeof(char));
+	strcat(ret, "(");
+	for (i=0; i<list_length; i++)
+	{
+		strcat(ret, temp_list_of_strings[i]);
+		strcat(ret, ";");
+		free(temp_list_of_strings[i]);
+	}
+	strcat(ret, ")");
+	free(temp_list_of_strings);
+	return ret;
+}
 

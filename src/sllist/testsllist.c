@@ -3,34 +3,6 @@
 #include<stdio.h>
 #include<string.h>
 
-char* printNumberList(sllist* list)
-{
-	int length = sllist_get_length(list);
-	int i, handler;
-	int numOfComas = length - 1; 
-	const int digitsPerNum = 3;
-	int totalRetLength = sizeof(char)*digitsPerNum+numOfComas;
-	
-	char* ret = malloc(totalRetLength + 1);//uno mas por el '0'
-	char* stringedNumber = malloc(digitsPerNum*sizeof(char));
-	
-	ret[totalRetLength] = '\0';
-	handler = *(int*)sllist_get_elem(list, 3);	
-	for (i=0; i<length; i++)
-	{
-		
-		handler = *(int*)sllist_get_elem(list, i);
-		
-		
-		sprintf(stringedNumber, "%d", handler);
-		
-		if (i>0)
-			strcat(ret, ",");
-		strcat(ret, stringedNumber);
-		
-	}
-	return ret;
-}
 
 void TestLoadList(sllist* list)
 {
@@ -45,16 +17,38 @@ void TestLoadList(sllist* list)
 	}
 }
 
+char* number_to_sting(void* _num)
+{
+	int num = *(int*)_num;
+	int num_digits = 0, num_holder = num;
+	char* ret;
+	char digit;
+	const char inicio_de_digitos_ascii = 48;
+	do {
+		num_holder = num_holder / 10;
+		num_digits++;
+	}while ( num_holder != 0 );
+
+	ret = (char*)calloc(num_digits + 1, sizeof(char));
+	
+	do {
+		digit = num % 10;
+		num /= 10;
+		ret[num_digits-1] = digit + inicio_de_digitos_ascii;
+		num_digits--;
+	}while(num != 0);
+	return ret;
+}
+
 int main(void)
 {
 	sllist* lista = sllist_create();
 	int val;
+	char* list_state;
 	TestLoadList(lista);
-	//sllist_get_elem(lista, 0);
-	
-	
-	val = *(int*)sllist_get_elem(lista, 3);
-	printf("El valor almacenado es %d", val);
+	list_state = sllist_to_string(lista, number_to_sting);
+	printf("El tamaño de la lista es <%d>\n", sllist_get_length(lista));
+	printf("El estado de la lista es %s\n", list_state);
 
 	scanf("%d", &val);
 	return 0;

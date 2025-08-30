@@ -83,5 +83,15 @@ void sllist_destroy(sllist* list);
  * inside the list.
  * */
 void sllist_destroy_custom(sllist* list, void (*destroyer)(void* elem));
+/*
+ * Returns a string that represents the given list, 
+ * the string represents the elements based on the 
+ * "stringifier" function given, and separates elements
+ * with ';' and encloses all with "( )" 
+ * NOTE: the char* returned by stringifier MUST be a string
+ * (end with '\0') since this function uses string.h 
+ * functions from the standar library.
+ */
+char* sllist_to_string(sllist* list, char* (*stringifier)(void*));
 
 #endif
