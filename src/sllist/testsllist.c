@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<string.h>
 
-
+/*Es posible insertar valores cualquiera en la lista*/
 void TestLoadList(sllist* list)
 {
 	int i;
@@ -39,6 +39,31 @@ char* number_to_sting(void* _num)
 	}while(num != 0);
 	return ret;
 }
+/*Es posible remover un valor aleatorio de la lista*/
+void test_remove_list(sllist* list)
+{
+	int* val = sllist_remove(list, 1);
+	printf("El valor recuperado fue <%d>\n", *val);
+	free(val);
+	printf("Estado de la lista = %s", sllist_to_string(list, number_to_sting));
+}
+/*Es posible eliminar un elemento de la lista*/
+void test_eliminate_list(sllist* list)
+{
+	sllist_eliminate(list, 2);
+	printf("Estado de la lista = %s\n", sllist_to_string(list, number_to_sting));
+}
+
+int cmp_ints(void* a, void* b)
+{
+	return *(int*)a - *(int*)b;
+}
+
+void test_sllist_sort(sllist* list)
+{
+	sllist_sorth(list, cmp_ints);
+	printf("Estado de la lista = %s\n", sllist_to_string(list, number_to_sting));
+}
 
 int main(void)
 {
@@ -49,7 +74,9 @@ int main(void)
 	list_state = sllist_to_string(lista, number_to_sting);
 	printf("El tamaño de la lista es <%d>\n", sllist_get_length(lista));
 	printf("El estado de la lista es %s\n", list_state);
-
+	test_remove_list(lista);
+	test_eliminate_list(lista);
+	test_sllist_sort(lista);
 	scanf("%d", &val);
 	return 0;
 }

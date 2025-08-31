@@ -1,6 +1,7 @@
 #include "sllist.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 struct NODE {
 	void * val;
 	struct NODE * next;
@@ -48,7 +49,7 @@ void* sllist_get_elem(sllist* list, int index)
 		return NULL;
 	return nodo->val;
 }
-void sllist_append(sllist* list, void* elem)
+void sllist_add(sllist* list, void* elem)
 {
 	struct NODE* newtail = malloc(sizeof(struct NODE));
 	newtail->val = elem;
@@ -101,10 +102,9 @@ void sllist_eliminate_custom(sllist* list, int index, void (*destroyer)(void* el
 		destroyer(val);
 	}
 }
-struct NODE* remove(sllist* list, int index)
+struct NODE* _remove_(sllist* list, int index)
 {
-	struct NODE** passer = &list->head;
-	struct NODE* handler;
+	struct NODE** passer = &(list->head);
 	struct NODE* ret;
 	int i=0;
 	while((*passer) != NULL)
@@ -112,8 +112,8 @@ struct NODE* remove(sllist* list, int index)
 		if (i==index)
 		{
 			ret = *passer;	
-			handler = (*passer)->next;
-			(*passer) = handler;
+			(*passer) = (*passer)->next;
+			list->length--;
 			return ret;
 		}
 		passer = &((*passer)->next);
@@ -123,12 +123,14 @@ struct NODE* remove(sllist* list, int index)
 
 }
 
-void*sllist_remove(sllist* list, int index)
+void* sllist_remove(sllist* list, int index)
 {
-	struct NODE* nodo = remove(list, index);
-	void * ret;
+	struct NODE* nodo = _remove_(list, index);
+	void* ret;
 	if (nodo == NULL)
+	{
 		return NULL;
+	}
 	ret = nodo->val;
 	free(nodo);
 	return ret;
@@ -148,22 +150,6 @@ int  sllist_get_first_instance_index(sllist* list, void* elem, int (*cmp)(void* 
 	}
 	return -1;
 }
-void* sllist_get_first_instance_of(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
-{
-	struct NODE* passer = list->head;
-	int i=0;
-	while (passer != NULL)
-	{
-		if (cmp(passer->val, elem)==0)
-		{
-			return passer->val;
-		}
-		passer = passer->next;
-		i++;
-	}
-	return NULL;
-
-}
 /*
  * Retorna una lista de nodos que todos tienen otro nodo despues de este
  * osea basicamente retorna una lista de listas de dos o un nodo
@@ -171,21 +157,19 @@ void* sllist_get_first_instance_of(sllist* list, void* elem, int (*cmp)(void* e1
 sllist* split_in_twos(sllist* list)
 {
 	struct NODE* passer = list->head;
-	struct NODE* holder;
 	struct NODE* newEntry;
 	sllist* ret = sllist_create();
-	int i=0;
 	while (passer != NULL) 
 	{
 		newEntry = malloc(sizeof(struct NODE));
 		newEntry->val = passer;
 		if (passer->next == NULL)
 		{
-			sllist_append(ret, newEntry);
+			sllist_add(ret, newEntry);
 			break;
 		}
 		passer = passer->next->next;
-		sllist_append(ret, newEntry);
+		sllist_add(ret, newEntry);
 	}
 	return ret;
 }
@@ -236,6 +220,7 @@ void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 	struct NODE* handler;
 	struct NODE* helper;
 	//ordenamos las listas de dos
+	
 	while (nodo != NULL)
 	{
 		handler = nodo->val;
@@ -328,7 +313,11 @@ char* sllist_to_string(sllist* list, char* (*stringifier)(void*))
 	for (i=0; i<list_length; i++)
 	{
 		strcat(ret, temp_list_of_strings[i]);
-		strcat(ret, ";");
+		if (num_of_separators > 0)
+		{
+			strcat(ret, ";");
+			num_of_separators--;
+		}
 		free(temp_list_of_strings[i]);
 	}
 	strcat(ret, ")");

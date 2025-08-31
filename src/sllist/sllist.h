@@ -14,13 +14,13 @@ sllist* sllist_create();
  * */
 int   sllist_get_length(sllist* list);
 /*
- * Returns the item in the given position, or NULL if the item couldn't be found
+ * Returns the item in the given position or NULL if the element was not in the list
  * */
 void* sllist_get_elem(sllist* list, int index);
 /*
  * Adds an item to the very end of the list
  * */
-void sllist_append(sllist* list, void* elem);
+void sllist_add(sllist* list, void* elem);
 /*
  * Adds an item at an especific position in the list, if the size of the list if smaller
  * then the given index it will only add the item at the very end of the list
@@ -40,21 +40,16 @@ void sllist_eliminate(sllist* list, int index);
  * */
 void sllist_eliminate_custom(sllist* list, int index, void (*destroyer)(void* elem));
 /*
- * Removes the object from the list and returns it. 
+ * Removes the object from the list and returns it. it returns -1 if the object couldn't be 
+ * found and 0 otherwise
  * */
-void*sllist_remove(sllist* list, int index);
+void* sllist_remove(sllist* list, int index);
 /*
  * Finds the index of the first object in the list that makes cmp return 0.
  * cmp must retorn >0 if e1>e2, 0 if e1==e2 and <0 if e1<e2 the number itself does not matter
  * just it's sign
  * */
 int  sllist_get_first_instance_index(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
-/*
- * Finds the element given inside the list and returns it
- * cmp must retorn >0 if e1>e2, 0 if e1==e2 and <0 if e1<e2 the number itself does not matter
- * just it's sign
- * */
-void*sllist_get_first_instance_of(sllist* list, void* elem, int (*cmp)(void* e1, void* e2));
 /*
  * Uses the algorithm Merge Sort to sort a list of elements following the criteria given by
  * cmp
