@@ -1,8 +1,6 @@
 FLAGS := -Wall
 SRC := src
 
-
-
 compile : sllist.o testsllist.o
 	gcc sllist.o testsllist.o -o sllisttest.exe	
 

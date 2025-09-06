@@ -150,64 +150,6 @@ int  sllist_get_first_instance_index(sllist* list, void* elem, int (*cmp)(void* 
 	}
 	return -1;
 }
-/*
- * Retorna una lista de nodos que todos tienen otro nodo despues de este
- * osea basicamente retorna una lista de listas de dos o un nodo
- * */
-sllist* split_in_twos(sllist* list)
-{
-	struct NODE* passer = list->head;
-	struct NODE* newEntry;
-	sllist* ret = sllist_create();
-	while (passer != NULL) 
-	{
-		newEntry = malloc(sizeof(struct NODE));
-		newEntry->val = passer;
-		if (passer->next == NULL)
-		{
-			sllist_add(ret, newEntry);
-			break;
-		}
-		passer = passer->next->next;
-		sllist_add(ret, newEntry);
-	}
-	return ret;
-}
-//asuming you recieve two list that are perfectly sorted, it will 
-//add all the elements from the second list to the first one in their 
-//respective order
-void merge_ordered_lists_in_order(struct NODE* list1, struct NODE* list2, int (*cmp)(void* e1, void* e2))
-{
-	struct NODE** iter = &list1;
-	struct NODE*  jter = list2;
-	struct NODE*  helper1;
-	struct NODE*  helper2;
-	while (*iter != NULL) 
-	{
-		if (cmp((*iter)->val, jter->val) > 0)
-		{
-			//put them in order
-			//guardamos la direccion del objeto mayor
-			helper1 = *iter;
-			//colocamos al objeto menor en su posicion
-			*iter = jter;
-			//guardamos el objeto al que el objeto menor apuntaba
-			helper2 = jter->next;
-			//hacemos que el objeto menor apunte al objeto mayor
-			jter->next = helper1;
-			//cargamos el objeto siguiente de el iterador de la lista segunda
-			jter = helper2;
-		}else 
-		{
-			//avanzar el puntero
-			iter = &(*iter)->next;
-		}
-	}
-	//todos los elementos que queden en jter tienen que ser mayores que los elementos de iter
-	//por tanto solo la pegas al final
-	if (jter != NULL)
-		*iter = jter;
-}
 
 void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 {
@@ -215,38 +157,75 @@ void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 	 * Necesito partirla en listas de 2, luego ordenarlas a todas 
 	 * luego mergearlas en orden hasta tener una sola lista de nuevo
 	 * */
-	sllist* partitionedlist = split_in_twos(list);
-	struct NODE* nodo = partitionedlist->head;
-	struct NODE* handler;
-	struct NODE* helper;
-	//ordenamos las listas de dos
-	
-	while (nodo != NULL)
+	struct NODE nodos[list->length];
+	int size = list->length;
+	int i = 0;
+	int sublistas = 0;
+	struct NODE** iter = &(list->head);
+	struct NODE** jter = NULL;
+	struct NODE* temp;
+	struct NODE** helper;
+	if (size == 0) 
 	{
-		handler = nodo->val;
-		if (cmp(handler->val, handler->next->val) > 0)
+		return;//mi logica se rompe al final con lista nula
+	}
+	while(*iter != NULL) 
+	{//cargamos todos los valores en lista
+		nodos[i] = (*iter);
+		i++;
+	}
+	//ahora que estan todos en lista, ordenamos de a pares
+	for (i=0; i<size; i+=2)//necesito iterar de a dos
+	{
+		if (size-i>=2)//si todavia quedan pares
 		{
-			helper = handler->next;
-			helper->next = handler;
-			handler->next = NULL;
+			if (cmp(nodos[i]->val, nodos[i+1]->val)<1)
+			{
+				temp = nodos[i];
+				nodos[i] = nodos[i+1];
+				nodos[i+1] = NULL;//la lista solo contiene las entradas a las sublistas
+				nodos[i]->next = temp;
+				temp->next = NULL;
+			}
+			//para poder iterarlos luego como si fueran listas en si
+			nodos[i]->next = nodos[i+1];
+			nodos[i+1]->next = NULL;
+		} else {//solo queda un nodo que cargar
+			nodos[i]->next = NULL;
 		}
+		sublistas++;
 	}
-	if (partitionedlist->length==1)
+	//luego necesito mergear la lista de sublistas hasta que solo quede una lista
+	for (i=0; sublistas > 1; i+=2)
 	{
-		//arreglar la lista original y volver, la cosa solo tenia dos elementos
+		//si la cantidad de listas adelante tuyo es suficiente para agarrar de a 2
+		if (sublistas - i => 2)
+		{
+			iter = nodos + i;
+			jter = nodos + i + 1;
+		
+			while(*iter != NULL && *jter != NULL)
+			{
+				if (cmp((*iter)->val, (*jter)->val)<0)
+				{
+					temp = *iter;
+					*iter = *jter;//hacemos que el anterior apunte a este
+					iter = &(temp);
+					jter = &(*jter)->next;//avanzamos jter para probar al siguiente
+					continue;
+				}
+				temp = *jter;
+				*jter = *iter;
+				*jter = &temp;
+				iter = &(*iter)->next;//avanzamos iter para probar con el siguiente
+			}
+			sublistas--;//mergee dos sublistas, por tanto hay una menos
+		}
+		//si no solamente movemos la lista un poco mas atras
+		nodos[i * 0.5] = nodos[i];//tis way we push them all to the bottom of the array
 	}
-	handler = partitionedlist->head;
-	while(partitionedlist->length>1)
-	{
-		helper = handler->val;
-		merge_ordered_lists_in_order(handler->val, handler->next->val, cmp);
-		helper = handler->next;
-		handler->next = helper->next;
-		free(helper);//destruimos el nodo que ya no usamos
-		partitionedlist->length--;
-	}
-	list->head = partitionedlist->head->val;
-	list->tail = get_at(partitionedlist, partitionedlist->length-1);
+	list->head = *nodos;
+	//TODO: hacer un loop para obtener la cola
 }
 int  sllist_add_in_order(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
 {
