@@ -45,7 +45,7 @@ void test_remove_list(sllist* list)
 	int* val = sllist_remove(list, 1);
 	printf("El valor recuperado fue <%d>\n", *val);
 	free(val);
-	printf("Estado de la lista = %s", sllist_to_string(list, number_to_sting));
+	printf("Estado de la lista = %s\n", sllist_to_string(list, number_to_sting));
 }
 /*Es posible eliminar un elemento de la lista*/
 void test_eliminate_list(sllist* list)
@@ -62,7 +62,10 @@ int cmp_ints(void* a, void* b)
 void test_sllist_sort(sllist* list)
 {
 	sllist_sorth(list, cmp_ints);
-	printf("Estado de la lista = %s\n", sllist_to_string(list, number_to_sting));
+	int * num = malloc(sizeof(int));
+	*num = 32;
+	sllist_add(list, num);
+	printf("\nEstado de la lista despues de sort = %s\n", sllist_to_string(list, number_to_sting));
 }
 
 int main(void)
@@ -77,6 +80,7 @@ int main(void)
 	test_remove_list(lista);
 	test_eliminate_list(lista);
 	test_sllist_sort(lista);
+	
 	scanf("%d", &val);
 	return 0;
 }
