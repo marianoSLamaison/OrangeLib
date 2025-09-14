@@ -151,96 +151,58 @@ int  sllist_get_first_instance_index(sllist* list, void* elem, int (*cmp)(void* 
 	return -1;
 }
 
+int get_node_chain_length(struct NODE* nod)
+{
+	int i=0;
+	while (nod != NULL)
+	{
+		i++;
+		nod = nod->next;
+	}
+	return i;
+}
+
 void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 {
-	/*
-	 * Necesito partirla en listas de 2, luego ordenarlas a todas 
-	 * luego mergearlas en orden hasta tener una sola lista de nuevo
-	 * */
-	struct NODE* nodos[list->length];
-	int size = list->length;
-	int i = 0;
-	int sublistas = 0;
-	struct NODE** iter = &(list->head);
-	struct NODE** jter = NULL;
-	struct NODE* temp;
-	if (size == 0) 
+	//partes
+	//1. dividir la lista en un monton de listas de dos
+	//2. ordenar esas listas de dos
+	//3. mergear dichas listas en orden
+	int list_length = sllist_get_length(list);
+	struct NODE* nodos[list_length];
+	struct NODE**iter = &(list->head);
+	int i=0, sub_listas = list_length / 2 + list_length % 2 ; // que tantas sub listas
+								   // se tendra que hacer
+								   // al comienzo
+	struct NODE* holder;
+	while (*iter != NULL)
 	{
-		return;//mi logica se rompe al final con lista nula
-	}
-	while(*iter != NULL) 
-	{//cargamos todos los valores en lista
-		nodos[i] = (*iter);
-		iter = &(*iter)->next;
+		nodos[i] = *iter;
+		iter = &((*iter)->next);
 		i++;
 	}
-	//ahora que estan todos en lista, ordenamos de a pares
-	for (i=0; i<size; i+=2)//necesito iterar de a dos
+	for (i=0; i<list_length; i+=2) 
 	{
-		if (size-i>=2)//si todavia quedan pares
+		if (i== list_length - 1)
 		{
-			if (cmp(nodos[i]->val, nodos[i+1]->val)<0)
-			{
-				temp = nodos[i];
-				nodos[i] = nodos[i+1];
-				nodos[i+1] = NULL;//la lista solo contiene las entradas a las sublistas
-				nodos[i]->next = temp;
-				temp->next = NULL;
-			}else {
-
-				//para poder iterarlos luego como si fueran listas en si
-				nodos[i]->next = nodos[i+1];
-				nodos[i+1]->next = NULL;
-				nodos[i+1] = NULL;
-			}
-		} else {//solo queda un nodo que cargar
+			//nodos[i/2] = nodos[i];
+			continue;
+		}
+		if (cmp(nodos[i],nodos[i+1])<0)
+		{
+			nodos[i+1]->next = nodos[i];
 			nodos[i]->next = NULL;
+			holder= nodos[i+1];
+			nodos[i+1]= nodos[i];
+			nodos[i]=holder;
+			continue;
 		}
-		nodos[i/2] = nodos[i];
-		sublistas++;
+		nodos[i]->next = nodos[i+1];
+		nodos[i+1]->next = NULL;
 	}
-	//luego necesito mergear la lista de sublistas hasta que solo quede una lista
-	for (i=0; sublistas > 1; i+=2)
-	{
-		//si la cantidad de listas adelante tuyo es suficiente para agarrar de a 2
-		if (sublistas - i >= 2)
-		{
-			iter = nodos + i;
-			jter = nodos + i + 1;
-		
-			while(*iter != NULL && *jter != NULL)
-			{
-				if (cmp((*iter)->val, (*jter)->val)<0)
-				{
-					temp = *jter;
-					*jter = *iter;
-					jter = &temp;
-					iter = &(*iter)->next;//avanzamos iter para probar con el siguiente
-					continue;
-				}
-				temp = (*iter)->next; 
-				(*iter)->next = *jter;
-				*iter = temp;
-
-				temp = *iter;
-				*iter = *jter;//hacemos que el anterior apunte a este
-				iter = &(temp);
-				jter = &(*jter)->next;//avanzamos jter para probar al siguiente
-			}
-			sublistas--;//mergee dos sublistas, por tanto hay una menos
-		}
-		//si no solamente movemos la lista un poco mas atras
-		nodos[i/2] = nodos[i];//tis way we push them all to the bottom of the array
-	//	nodos[i]=NULL;
-	}
-	list->head = *nodos;
-	iter = nodos;
-	while((*iter)->next != NULL)
-	{
-		iter = &(*iter)->next;
-	}
-	list->tail = *iter;
-	//TODO: hacer un loop para obtener la cola
+	//actualizamos la nueva lista
+	list->length = get_node_chain_length(nodos[0]);
+	list->head = nodos[0];
 }
 int  sllist_add_in_order(sllist* list, void* elem, int (*cmp)(void* e1, void* e2))
 {

@@ -56,15 +56,12 @@ void test_eliminate_list(sllist* list)
 
 int cmp_ints(void* a, void* b)
 {
-	return *(int*)a - *(int*)b;
+	return *(int*)b - *(int*)a;
 }
 
 void test_sllist_sort(sllist* list)
 {
 	sllist_sorth(list, cmp_ints);
-	int * num = malloc(sizeof(int));
-	*num = 32;
-	sllist_add(list, num);
 	printf("\nEstado de la lista despues de sort = %s\n", sllist_to_string(list, number_to_sting));
 }
 
@@ -77,8 +74,8 @@ int main(void)
 	list_state = sllist_to_string(lista, number_to_sting);
 	printf("El tamaño de la lista es <%d>\n", sllist_get_length(lista));
 	printf("El estado de la lista es %s\n", list_state);
-	test_remove_list(lista);
-	test_eliminate_list(lista);
+	//test_remove_list(lista);
+	//test_eliminate_list(lista);
 	test_sllist_sort(lista);
 	
 	scanf("%d", &val);
