@@ -8,6 +8,9 @@ SRC := src
 debug: sllist_debug.o testllist_debug.o
 	gcc $(D_FLAGS) $^ -o  sllist_debug.exe
 
+run_debug:
+	gdb -x .gdbinit ./sllist_debug.exe
+
 sllist_debug.o: $(SRC)/sllist/sllist.c
 	gcc -c $(D_FLAGS) $< -o $@
 
