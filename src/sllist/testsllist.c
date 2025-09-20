@@ -8,8 +8,8 @@ void TestLoadList(sllist* list)
 {
 	int i;
 	int * data;
-	int vals[] = {3, 12, 0, 932, 1};
-	for (i=0; i<5; i++)
+	int vals[] = {3, 12, 932, 0, 1, 24, 12, 11, 34, 4};
+	for (i=0; i<10; i++)
 	{	
 		data = malloc(sizeof(int));
 		*data = vals[i];

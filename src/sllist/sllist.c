@@ -162,16 +162,64 @@ int get_node_chain_length(struct NODE* nod)
 	return i;
 }
 
+struct NODE* ordered_merge_link_chain(struct NODE* a, struct NODE* b, int (*cmp)(void* e1, void* e2))
+{
+	struct NODE* holder;
+	struct NODE* new_head;
+	const int line_a = 1;
+	const int line_b = -1;
+	const int no_line = 0;
+	int in_line = no_line;
+	if (cmp(a->val, b->val)<0)
+	{
+		new_head = b;
+		in_line = line_b;
+	}
+	else {
+		new_head = a;
+		in_line = line_a;
+	}
+	while (a != NULL && b != NULL)
+	{
+		if (cmp(a->val, b->val)<0)
+		{
+			if (in_line == line_a)
+			{
+				in_line = line_b;
+				holder->next = b;
+			}
+			holder = b;
+			b = b->next;
+		} else {
+			if (in_line == line_b)
+			{
+				in_line = line_a;
+				holder->next = a;
+			}
+			holder = a;
+			a = a->next;
+		}
+	}
+	if (a == NULL) 
+	{
+		holder->next = b;
+	}else if (b == NULL) 
+	{
+		holder->next = a;
+	}
+	return new_head;
+}
+
 void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 {
 	//partes
 	//1. dividir la lista en un monton de listas de dos
 	//2. ordenar esas listas de dos
 	//3. mergear dichas listas en orden
-	int list_length = sllist_get_length(list);
+	int list_length = sllist_get_length(list), lists_to_merge=0;
 	struct NODE* nodos[list_length];
 	struct NODE**iter = &(list->head);
-	int i=0, sub_listas = list_length / 2 + list_length % 2 ; // que tantas sub listas
+	int i=0, sub_listas = (list_length / 2) + (list_length % 2) ; // que tantas sub listas
 								   // se tendra que hacer
 								   // al comienzo
 	struct NODE* holder;
@@ -185,21 +233,39 @@ void sllist_sorth(sllist* list, int (*cmp)(void* e1, void* e2))
 	{
 		if (i== list_length - 1)
 		{
+			nodos[i]->next = NULL;
 			//nodos[i/2] = nodos[i];
-			continue;
 		}
-		if (cmp(nodos[i],nodos[i+1])<0)
+		else if (cmp(nodos[i]->val,nodos[i+1]->val)<0)
 		{
 			nodos[i+1]->next = nodos[i];
 			nodos[i]->next = NULL;
 			holder= nodos[i+1];
 			nodos[i+1]= nodos[i];
 			nodos[i]=holder;
-			continue;
+		} else {
+			nodos[i]->next = nodos[i+1];
+			nodos[i+1]->next = NULL;
 		}
-		nodos[i]->next = nodos[i+1];
-		nodos[i+1]->next = NULL;
+		nodos[i/2] = nodos[i];//lo movemos todo mas atras, con el fin de hacer mas vueltas
 	}
+	while (sub_listas > 1)
+	{
+		lists_to_merge = sub_listas;
+		for (i=0; i<lists_to_merge; i+=2)
+		{
+			if (i != lists_to_merge - 1)
+			{
+				nodos[i] = ordered_merge_link_chain(
+						nodos[i],
+						nodos[i+1],
+					cmp);
+				sub_listas--;
+			}	
+			nodos[i/2] = nodos[i];
+		}
+	}
+	//nodos[0] = ordered_merge_link_chain(nodos[0], nodos[1], cmp);
 	//actualizamos la nueva lista
 	list->length = get_node_chain_length(nodos[0]);
 	list->head = nodos[0];
